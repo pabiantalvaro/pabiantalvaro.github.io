@@ -7,9 +7,9 @@
   --bg-sidebar: #18181c;
   --text-primary: #ffffff;
   --text-muted: #a0a0aa;
-  --accent-color: #3b82f6; 
+  --accent-color: #63acff; 
   --border-color: #2e2e33;
-  --font-family: 'Inter';
+  --font-family: 'Arial';
 }
 
 * {
@@ -42,50 +42,61 @@ aside {
   height: 100vh;
 }
 
+.date-header {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--accent-color);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 10px;
+}
+
 .sidebar-section {
   display: flex;
   flex-direction: column;
-  max-height: 55vh;
+  flex-grow: 1;      
+  overflow: hidden;   
+  margin-bottom: 20px;
 }
 
 .sidebar-section h2 {
-  font-size: 1.2rem;
-  letter-spacing: 1px;
-  margin-bottom: 16px;
-  text-transform: uppercase;
-  color: var(--text-primary);
+    margin-bottom: 16px;
+}
+
+.routines h2{
+    margin-bottom: 16px;
 }
 
 .timeline {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  overflow-y: auto;
-  padding-right: 8px; /* Adds space so the scrollbar doesn't touch the text */
+  overflow-y: auto;   
+  padding-right: 8px;
   
-  /* Modern standard scrollbar rule for Firefox */
+  /* Modern Firefox scrollbar style */
   scrollbar-width: thin;
   scrollbar-color: var(--border-color) transparent;
 }
 
-/* ==========================================
-   CUSTOM TIMELINE SCROLLBAR (Chrome/Safari/Webkit)
-   ========================================== */
+/* Custom Webkit scrollbar rules (iPad Safari / Chrome) */
 .timeline::-webkit-scrollbar {
-  width: 6px; /* Makes the scrollbar very thin and elegant */
+  width: 6px;
 }
 
 .timeline::-webkit-scrollbar-track {
-  background: transparent; /* Makes the scrollbar track completely invisible */
+  background: transparent;
 }
 
 .timeline::-webkit-scrollbar-thumb {
-  background-color: var(--border-color); /* Matches your subtle card borders */
-  border-radius: 10px; /* Fully rounds the capsule edges */
+  background-color: var(--border-color);
+  border-radius: 10px;
 }
 
 .timeline::-webkit-scrollbar-thumb:hover {
-  background-color: var(--accent-color); /* Turns your accent blue when hovered! */
+  background-color: var(--accent-color);
 }
 
 .timeline-item {
@@ -139,31 +150,42 @@ aside {
   color: var(--text-muted);
   border-radius: 8px;
   font-size: 0.9rem;
-  padding: 40px;
+  padding: 20px; 
+}
+
+.logo-container svg {
+  max-width: 100%;
+  max-height: 50px; 
+  height: auto;
+  width: auto;
 }
 
 /* ==========================================
-   MAIN CONTENT DASHBOARD (Responsive)
+   MAIN CONTENT DASHBOARD (Original Layout)
    ========================================== */
 main {
   flex-grow: 1;
   padding: 24px;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  /* Creates a vertical grid: top half is focus, bottom half is milestones */
+  grid-template-rows: 0.6fr 0.4fr; 
   gap: 20px;
+  height: 100vh; /* Locks the main dashboard to the exact viewport height */
+  box-sizing: border-box;
 }
 
-/* Compact Main Focus Card */
+/* Main Focus Card (Top half) */
 .focus-card {
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  padding: 30px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  flex-grow: 1;
+  height: 100%; /* Tells it to fill its half of the grid completely */
+  box-sizing: border-box;
 }
 
 .timer-circle {
@@ -192,7 +214,7 @@ main {
 
 .timer-circle .progress-ring {
   stroke: var(--accent-color);
-  stroke-dasharray: 502; /* 2 * PI * 80 */
+  stroke-dasharray: 502; 
   stroke-dashoffset: 0;
   transition: stroke-dashoffset 1s linear;
   stroke-linecap: round;
@@ -200,68 +222,123 @@ main {
 
 .countdown-display {
   position: absolute;
-  font-size: 1.6rem;
+  font-size: 2.2rem;
   font-weight: bold;
   font-variant-numeric: tabular-nums;
 }
 
 .current-task-label {
-  margin-top: 20px;
-  font-size: 3.6rem;
+  margin-top: 15px;
+  font-size: 1.8rem; 
   font-weight: 600;
   text-transform: capitalize;
 }
 
-/* Bottom Milestones Row */
+/* Bottom Milestones Row (Bottom half) */
 .milestones-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  /* Splits the bottom row into 2 equal columns using 1fr */
+  grid-template-columns: 1fr 1fr; 
   gap: 20px;
+  height: 100%; /* Forces the container to match the focus card height */
 }
 
 .milestone-card {
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 10px;
-  padding: 18px;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column; 
+  justify-content: center; /* Pushes title to top, numbers to bottom */
+  height: 100%; /* Ensures both boxes fill the height equally */
+  box-sizing: border-box;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
 }
 
 .milestone-title {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  font-weight: 600;
   color: var(--text-muted);
-  margin-bottom: 8px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
 }
 
 .milestone-countdown {
   display: flex;
-  gap: 16px;
+  gap: 20px;
 }
 
 .countdown-unit {
   display: flex;
   flex-direction: column;
+  gap: 10px;
 }
 
 .countdown-num {
-  font-size: 1.6rem;
+  font-size: 4rem; 
   font-weight: bold;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  letter-spacing: -4px;
+  font-kerning: normal;
 }
 
 .countdown-label {
   font-size: 0.75rem;
   color: var(--text-muted);
   text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.date-header {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--accent-color); /* Uses your custom blue highlights */
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--border-color);
+/* ==========================================
+   DYNAMIC ROUTINES SIDEBAR STYLING
+   ========================================== */
+.routines-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background-color: var(--bg-card);
+  border: 1px dashed var(--border-color);
+  padding: 14px;
+  border-radius: 8px;
   margin-bottom: 10px;
+}
+
+.routine-activity {
+  display: flex;
+  justify-content: space-between; /* Pushes items apart */
+  align-items: center; /* Keeps them vertically centered */
+  gap: 16px; /* Creates a safe buffer zone between them */
+  padding: 12px;
+  background-color: rgba(255, 255, 255, 0.03); /* Subtle background for the row */
+  border-radius: 8px;
+}
+
+/* 2. The Left Text (The Greedy Flex Item) */
+.activity-name {
+  flex: 1; /* 🔥 THE MAGIC FIX: Tells it to consume all available empty space */
+  color: var(--text-primary);
+  line-height: 1.5;
+  font-size: 0.8rem;
+}
+
+/* 3. The Right Text (The Unbreakable Badge) */
+.muscle-target {
+  white-space: nowrap; /* 🔥 THE MAGIC FIX: Forbids the browser from breaking this into two lines */
+  color: var(--accent-color); /* Makes the target pop */
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background-color: rgba(59, 130, 246, 0.1); /* Little highlight box */
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+/* Optional styling to flash a highlight color when hovered */
+.muscle-target:hover {
+  color: var(--text-primary);
 }
