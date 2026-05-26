@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Productivity Dashboard</title>
+  <style>
+    /* ==========================================
+       COLOR VARIABLES - Edit these to customize
+       ========================================== */
+    :root {
+      --bg-main: #121214;
+      --bg-card: #1a1a1e;
+      --bg-sidebar: #18181c;
+      --text-primary: #ffffff;
+      --text-muted: #a0a0aa;
+      --accent-color: #3b82f6; /* Circular ring & highlights */
+      --border-color: #2e2e33;
+      --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-primary);
+      font-family: var(--font-family);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ==========================================
+       LEFT SIDEBAR
+       ========================================== */
+    aside {
+      width: 280px;
+      background-color: var(--bg-sidebar);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      padding: 24px;
+      gap: 24px;
+    }
+
+    .logo-container {
+      height: 60px;
+      border: 2px dashed var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      border-radius: 8px;
+    }
+
+    .sidebar-section h2 {
+      font-size: 1.2rem;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      color: var(--text-primary);
+    }
+
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex-grow: 1;
+      overflow-y: auto;
+    }
+
+    .timeline-item {
+      display: flex;
+      gap: 12px;
+      font-size: 0.95rem;
+      padding: 8px;
+      border-radius: 6px;
+    }
+
+    .timeline-item.active {
+      background-color: rgba(59, 130, 246, 0.1);
+      border-left: 3px solid var(--accent-color);
+      color: var(--text-primary);
+    }
+
+    .timeline-time {
+      font-weight: bold;
+      color: var(--accent-color);
+      min-width: 50px;
+    }
+
+    .quote-box {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      padding: 16px;
+      border-radius: 8px;
+      position: relative;
+      font-style: italic;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .quote-box::before {
+      content: "“";
+      position: absolute;
+      top: -5px;
+      right: 10px;
+      font-size: 2.5rem;
+      color: rgba(255,255,255,0.05);
+      font-family: serif;
+    }
+
+    /* ==========================================
+       MAIN CONTENT DASHBOARD
+       ========================================== */
+    main {
+      flex-grow: 1;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      overflow-y: auto;
+    }
+
+    /* Focus Main Card */
+    .focus-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-grow: 2;
+      position: relative;
+    }
+
+    .timer-circle {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .timer-circle svg {
+      transform: rotate(-90deg);
+      width: 220px;
+      height: 220px;
+    }
+
+    .timer-circle circle {
+      fill: none;
+      stroke-width: 8;
+    }
+
+    .timer-circle .bg-ring {
+      stroke: var(--border-color);
+    }
+
+    .timer-circle .progress-ring {
+      stroke: var(--accent-color);
+      stroke-dasharray: 628; /* 2 * PI * r (r=100) */
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 1s linear;
+      stroke-linecap: round;
+    }
+
+    .countdown-display {
+      position: absolute;
+      font-size: 2.5rem;
+      font-weight: bold;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .current-task-label {
+      margin-top: 24px;
+      font-size: 1.8rem;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    /* Bottom Milestones Row */
+    .milestones-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+    }
+
+    .milestone-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .milestone-title {
+      font-size: 1rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .milestone-countdown {
+      display: flex;
+      gap: 16px;
+    }
+
+    .countdown-unit {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .countdown-num {
+      font-size: 1.8rem;
+      font-weight: bold;
+    }
+
+    .countdown-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+  <aside>
+    <div class="sidebar-section">
+      <h2>Schedule</h2>
+      <div class="timeline" id="timeline">
+        </div>
+    </div>
+
+    <div class="quote-box" id="quote-display">
+      "Loading daily motivation..."
+    </div>
+
+    <div class="logo-container">
+      <span>My Logo</span>
+    </div>
+  </aside>
+
+  <main>
+    <div class="focus-card">
+      <div class="timer-circle">
+        <svg>
+          <circle class="bg-ring" cx="110" cy="110" r="100"></circle>
+          <circle class="progress-ring" id="progress-ring" cx="110" cy="110" r="100"></circle>
+        </svg>
+        <div class="countdown-display" id="main-timer">00:00</div>
+      </div>
+      <div class="current-task-label" id="current-task">No Active Event</div>
+    </div>
+
+    <div class="milestones-row" id="milestones-container">
+      </div>
+  </main>
+
+  <script>
+    async function loadDashboardData() {
+      try {
+        // Fetch logic reading clean static data from data.json
+        const response = await fetch('data.json');
+        const data = await response.json();
+        
+        renderQuotes(data.quotes);
+        renderTimeline(data.schedule);
+        initLongTermCountdowns(data.longTermEvents);
+        startDailyScheduler(data.schedule);
+      } catch (error) {
+        console.error("Error matching or loading layout data JSON structure:", error);
+      }
+    }
+
+    function renderQuotes(quotes) {
+      if(!quotes || quotes.length === 0) return;
+      const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+      document.getElementById('quote-display').innerText = `"${randomQuote}"`;
+    }
+
+    function renderTimeline(schedule) {
+      const timelineEl = document.getElementById('timeline');
+      timelineEl.innerHTML = schedule.map(item => `
+        <div class="timeline-item" id="task-${item.time.replace(':', '')}">
+          <span class="timeline-time">${item.time}</span>
+          <span class="timeline-task">${item.title}</span>
+        </div>
+      `).join('');
+    }
+
+    function startDailyScheduler(schedule) {
+      const mainTimerEl = document.getElementById('main-timer');
+      const currentTaskEl = document.getElementById('current-task');
+      const progressRing = document.getElementById('progress-ring');
+      const ringCircumference = 628;
+
+      function updateScheduleTracking() {
+        const now = new Date();
+        const currentMinutes = now.getHours() * 60 + now.getMinutes();
+        
+        // Find which schedule block we are currently inside
+        let currentItem = null;
+        let nextItem = null;
+
+        // Sort schedule chronologically by absolute minute values
+        const sorted = [...schedule].sort((a,b) => {
+          const [aH, aM] = a.time.split(':').map(Number);
+          const [bH, bM] = b.time.split(':').map(Number);
+          return (aH * 60 + aM) - (bH * 60 + bM);
+        });
+
+        for (let i = 0; i < sorted.length; i++) {
+          const [h, m] = sorted[i].time.split(':').map(Number);
+          const itemMinutes = h * 60 + m;
+
+          if (itemMinutes <= currentMinutes) {
+            currentItem = sorted[i];
+            nextItem = sorted[i + 1] || null;
+          }
+        }
+
+        // Catch wrap-around before first morning event
+        if (!currentItem && sorted.length > 0) {
+          currentItem = sorted[sorted.length - 1];
+          nextItem = sorted[0];
+        }
+
+        // Reset previous active timeline UI stylings
+        document.querySelectorAll('.timeline-item').forEach(el => el.classList.remove('active'));
+
+        if (currentItem) {
+          const activeEl = document.getElementById(`task-${currentItem.time.replace(':', '')}`);
+          if (activeEl) activeEl.classList.add('active');
+          currentTaskEl.innerText = currentItem.title;
+
+          // Calculate remaining countdown tracking variables
+          let targetMinutes = 24 * 60; // default wrap midnight total
+          if (nextItem) {
+            const [nH, nM] = nextItem.time.split(':').map(Number);
+            targetMinutes = nH * 60 + nM;
+          } else {
+            const [fH, fM] = sorted[0].time.split(':').map(Number);
+            targetMinutes = (24 * 60) + (fH * 60 + fM); // First element next morning
+          }
+
+          const [startH, startM] = currentItem.time.split(':').map(Number);
+          const startMinutes = startH * 60 + startM;
+          
+          let totalBlockDuration = (targetMinutes >= startMinutes) ? (targetMinutes - startMinutes) : (24*60 - startMinutes + targetMinutes);
+          let elapsedMinutes = (currentMinutes >= startMinutes) ? (currentMinutes - startMinutes) : (24*60 - startMinutes + currentMinutes);
+          
+          let totalBlockSeconds = totalBlockDuration * 60;
+          let remainingSeconds = (totalBlockSeconds - (elapsedMinutes * 60 + now.getSeconds()));
+
+          if (remainingSeconds < 0) remainingSeconds = 0;
+
+          // Compute pretty countdown prints
+          const hoursLeft = Math.floor(remainingSeconds / 3600);
+          const minsLeft = Math.floor((remainingSeconds % 3600) / 60);
+          const secsLeft = remainingSeconds % 60;
+
+          let displayStr = "";
+          if (hoursLeft > 0) {
+            displayStr += `${String(hoursLeft).padStart(2, '0')}:`;
+          }
+          displayStr += `${String(minsLeft).padStart(2, '0')}:${String(secsLeft).padStart(2, '0')}`;
+          mainTimerEl.innerText = displayStr;
+
+          // Smooth SVGRing Percent calculation
+          const percentageRemaining = remainingSeconds / totalBlockSeconds;
+          const strokeOffset = ringCircumference * (1 - percentageRemaining);
+          progressRing.style.strokeDashoffset = strokeOffset;
+        }
+      }
+
+      setInterval(updateScheduleTracking, 1000);
+      updateScheduleTracking();
+    }
+
+    function initLongTermCountdowns(events) {
+      const container = document.getElementById('milestones-container');
+      container.innerHTML = events.map((ev, index) => `
+        <div class="milestone-card">
+          <div class="milestone-title">${ev.title}</div>
+          <div class="milestone-countdown" id="milestone-timer-${index}">
+            <div class="countdown-unit"><span class="countdown-num 00" id="m-d-${index}">00</span><span class="countdown-label">Days</span></div>
+            <div class="countdown-unit"><span class="countdown-num 00" id="m-h-${index}">00</span><span class="countdown-label">Hours</span></div>
+          </div>
+        </div>
+      `).join('');
+
+      function updateMilestones() {
+        events.forEach((ev, index) => {
+          const target = new Date(ev.targetDate).getTime();
+          const now = new Date().getTime();
+          const difference = target - now;
+
+          if (difference > 0) {
+            const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+
+            document.getElementById(`m-d-${index}`).innerText = String(days).padStart(2, '0');
+            document.getElementById(`m-h-${index}`).innerText = String(hours).padStart(2, '0');
+          } else {
+            document.getElementById(`m-d-${index}`).innerText = "00";
+            document.getElementById(`m-h-${index}`).innerText = "00";
+          }
+        });
+      }
+
+      setInterval(updateMilestones, 60000); // Check long timers every minute
+      updateMilestones();
+    }
+
+    // Initialize layout setup execution
+    loadDashboardData();
+  </script>
+</body>
+</html>
