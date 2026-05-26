@@ -1,0 +1,16 @@
+{
+  "quotes": [
+    "The secret of getting ahead is getting started.",
+    "Focus on being productive instead of busy."
+  ],
+  "schedule": [
+    {"time": "00:00", "title": "Rest & Sleep"},
+    {"time": "08:45", "title": "Main Event / Study Session"},
+    {"time": "12:30", "title": "Lunch Break"},
+    {"time": "17:15", "title": "Review & Coding"}
+  ],
+  "longTermEvents": [
+    {"title": "SIMAK UI", "targetDate": "2026-06-15T00:00:00"},
+    {"title": "Custom Event", "targetDate": "2026-06-30T12:00:00"}
+  ]
+}
