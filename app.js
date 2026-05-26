@@ -1,15 +1,18 @@
-async function loadDashboardData() {
-  try {
-    const response = await fetch('data.json');
-    const data = await response.json();
-    
-    renderQuotes(data.quotes);
-    renderTimeline(data.schedule);
-    initLongTermCountdowns(data.longTermEvents);
-    startDailyScheduler(data.schedule);
-  } catch (error) {
-    console.error("Error reading setup configuration data structures from local source:", error);
+function loadDashboardData() {
+  // Checks if your config file script loaded cleanly into global memory
+  if (typeof dashboardConfig !== 'undefined') {
+    initializeDashboard(dashboardConfig);
+  } else {
+    console.error("Configuration tracking data profile 'config.js' could not be found. Make sure it is linked in index.html above app.js.");
   }
+}
+
+function initializeDashboard(data) {
+  renderQuotes(data.quotes);
+  renderTimeline(data.schedule);
+  initLongTermCountdowns(data.longTermEvents);
+  startDailyScheduler(data.schedule);
+  displayCurrentDate(); // Keeps your sidebar date active
 }
 
 function renderQuotes(quotes) {
@@ -32,7 +35,7 @@ function startDailyScheduler(schedule) {
   const mainTimerEl = document.getElementById('main-timer');
   const currentTaskEl = document.getElementById('current-task');
   const progressRing = document.getElementById('progress-ring');
-  const ringCircumference = 502; // Adjusted circumference target match radius 80
+  const ringCircumference = 502; // Matches radius 80
 
   function updateScheduleTracking() {
     const now = new Date();
@@ -41,53 +44,62 @@ function startDailyScheduler(schedule) {
     let currentItem = null;
     let nextItem = null;
 
+    // Sort chronologically
     const sorted = [...schedule].sort((a,b) => {
       const [aH, aM] = a.time.split(':').map(Number);
       const [bH, bM] = b.time.split(':').map(Number);
       return (aH * 60 + aM) - (bH * 60 + bM);
     });
 
+    // Clear previous active states
+    document.querySelectorAll('.timeline-item').forEach(el => el.classList.remove('active'));
+
+    // Find active event block
     for (let i = 0; i < sorted.length; i++) {
       const [h, m] = sorted[i].time.split(':').map(Number);
       const itemMinutes = h * 60 + m;
+      
+      const [nextH, nextM] = (sorted[i + 1] ? sorted[i + 1].time : sorted[0].time).split(':').map(Number);
+      let nextMinutes = nextH * 60 + nextM;
 
-      if (itemMinutes <= currentMinutes) {
+      // Handle block spanning across midnight wrap
+      if (nextMinutes <= itemMinutes) {
+        nextMinutes += 24 * 60;
+      }
+
+      let adjustedCurrentMinutes = currentMinutes;
+      if (currentMinutes < itemMinutes && nextMinutes > 24 * 60) {
+        adjustedCurrentMinutes += 24 * 60;
+      }
+
+      if (adjustedCurrentMinutes >= itemMinutes && adjustedCurrentMinutes < nextMinutes) {
         currentItem = sorted[i];
-        nextItem = sorted[i + 1] || null;
+        nextItem = sorted[i + 1] || sorted[0];
+        break;
       }
     }
 
-    if (!currentItem && sorted.length > 0) {
-      currentItem = sorted[sorted.length - 1];
-      nextItem = sorted[0];
-    }
-
-    document.querySelectorAll('.timeline-item').forEach(el => el.classList.remove('active'));
-
-    if (currentItem) {
+    if (currentItem && nextItem) {
       const activeEl = document.getElementById(`task-${currentItem.time.replace(':', '')}`);
       if (activeEl) activeEl.classList.add('active');
       currentTaskEl.innerText = currentItem.title;
 
-      let targetMinutes = 24 * 60; 
-      if (nextItem) {
-        const [nH, nM] = nextItem.time.split(':').map(Number);
-        targetMinutes = nH * 60 + nM;
-      } else {
-        const [fH, fM] = sorted[0].time.split(':').map(Number);
-        targetMinutes = (24 * 60) + (fH * 60 + fM); 
+      const [nextH, nextM] = nextItem.time.split(':').map(Number);
+      let targetMinutes = nextH * 60 + nextM;
+      if (targetMinutes <= currentMinutes) {
+        targetMinutes += 24 * 60;
       }
 
       const [startH, startM] = currentItem.time.split(':').map(Number);
-      const startMinutes = startH * 60 + startM;
+      let startMinutes = startH * 60 + startM;
+      if (startMinutes > currentMinutes) {
+        startMinutes -= 24 * 60;
+      }
       
-      let totalBlockDuration = (targetMinutes >= startMinutes) ? (targetMinutes - startMinutes) : (24*60 - startMinutes + targetMinutes);
-      let elapsedMinutes = (currentMinutes >= startMinutes) ? (currentMinutes - startMinutes) : (24*60 - startMinutes + currentMinutes);
-      
-      let totalBlockSeconds = totalBlockDuration * 60;
-      let remainingSeconds = (totalBlockSeconds - (elapsedMinutes * 60 + now.getSeconds()));
-
-      if (remainingSeconds < 0) remainingSeconds = 0;
+      const totalBlockSeconds = (targetMinutes - startMinutes) * 60;
+      const targetTimeSecs = (targetMinutes * 60);
+      const currentTimeSecs = (currentMinutes * 60) + now.getSeconds();
+      const remainingSeconds = Math.max(0, targetTimeSecs - currentTimeSecs);
 
       const hoursLeft = Math.floor(remainingSeconds / 3600);
       const minsLeft = Math.floor((remainingSeconds % 3600) / 60);
@@ -145,5 +157,14 @@ function initLongTermCountdowns(events) {
   updateMilestones();
 }
 
-// Fire calculation setups on system window launch
+function displayCurrentDate() {
+  const dateEl = document.getElementById('current-date');
+  if (!dateEl) return;
+
+  const now = new Date();
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  dateEl.innerText = now.toLocaleDateString('en-US', options);
+}
+
+// Fire calculation system execution on startup
 loadDashboardData();
