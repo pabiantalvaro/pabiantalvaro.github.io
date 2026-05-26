@@ -1,0 +1,231 @@
+/* ==========================================
+   COLOR VARIABLES - Edit these to customize
+   ========================================== */
+:root {
+  --bg-main: #121214;
+  --bg-card: #1a1a1e;
+  --bg-sidebar: #18181c;
+  --text-primary: #ffffff;
+  --text-muted: #a0a0aa;
+  --accent-color: #3b82f6; 
+  --border-color: #2e2e33;
+  --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ==========================================
+   LEFT SIDEBAR (With Bottom Anchoring)
+   ========================================== */
+aside {
+  width: 280px;
+  background-color: var(--bg-sidebar);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  gap: 20px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.sidebar-section {
+  display: flex;
+  flex-direction: column;
+  max-height: 55vh;
+}
+
+.sidebar-section h2 {
+  font-size: 1.2rem;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+}
+
+.timeline-item {
+  display: flex;
+  gap: 12px;
+  font-size: 0.95rem;
+  padding: 8px;
+  border-radius: 6px;
+}
+
+.timeline-item.active {
+  background-color: rgba(59, 130, 246, 0.1);
+  border-left: 3px solid var(--accent-color);
+  color: var(--text-primary);
+}
+
+.timeline-time {
+  font-weight: bold;
+  color: var(--accent-color);
+  min-width: 50px;
+}
+
+/* Pushes itself and below elements to the bottom */
+.quote-box {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 16px;
+  border-radius: 8px;
+  position: relative;
+  font-style: italic;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-top: auto; 
+}
+
+.quote-box::before {
+  content: "“";
+  position: absolute;
+  top: -5px;
+  right: 10px;
+  font-size: 2.5rem;
+  color: rgba(255,255,255,0.05);
+  font-family: serif;
+}
+
+.logo-container {
+  height: 50px;
+  border: 1px dashed var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+/* ==========================================
+   MAIN CONTENT DASHBOARD (Responsive)
+   ========================================== */
+main {
+  flex-grow: 1;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Compact Main Focus Card */
+.focus-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+}
+
+.timer-circle {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timer-circle svg {
+  transform: rotate(-90deg);
+  width: 180px;
+  height: 180px;
+}
+
+.timer-circle circle {
+  fill: none;
+  stroke-width: 8;
+}
+
+.timer-circle .bg-ring {
+  stroke: var(--border-color);
+}
+
+.timer-circle .progress-ring {
+  stroke: var(--accent-color);
+  stroke-dasharray: 502; /* 2 * PI * 80 */
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 1s linear;
+  stroke-linecap: round;
+}
+
+.countdown-display {
+  position: absolute;
+  font-size: 2.2rem;
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+}
+
+.current-task-label {
+  margin-top: 20px;
+  font-size: 1.6rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* Bottom Milestones Row */
+.milestones-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.milestone-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 18px;
+}
+
+.milestone-title {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.milestone-countdown {
+  display: flex;
+  gap: 16px;
+}
+
+.countdown-unit {
+  display: flex;
+  flex-direction: column;
+}
+
+.countdown-num {
+  font-size: 1.6rem;
+  font-weight: bold;
+}
+
+.countdown-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
