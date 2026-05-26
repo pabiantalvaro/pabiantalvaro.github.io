@@ -9,10 +9,13 @@ function loadDashboardData() {
 
 function initializeDashboard(data) {
   renderQuotes(data.quotes);
+  renderRoutine(data.woRoutine); 
   renderTimeline(data.schedule);
   initLongTermCountdowns(data.longTermEvents);
   startDailyScheduler(data.schedule);
-  displayCurrentDate(); // Keeps your sidebar date active
+
+  
+  displayCurrentDate(); 
 }
 
 function renderQuotes(quotes) {
@@ -31,11 +34,32 @@ function renderTimeline(schedule) {
   `).join('');
 }
 
+function renderRoutine(woRoutine) {
+  const routineContainer = document.getElementById('workout-container');
+  if (!routineContainer) return; 
+
+  const today = new Date().getDay();
+
+  // If it's a weekend, stop the function right here so it doesn't try to load data
+  if (today === 0 || today === 6) return;
+
+  // Grab TODAY'S specific workout from your config array
+  const todaysWorkout = woRoutine[today - 1]; 
+
+  // Inject only that ONE workout into the HTML (No more .map() loop needed!)
+  routineContainer.innerHTML = `
+    <div class="routine-activity">
+      <span class="activity-name">${todaysWorkout.activity}</span>
+      <span class="muscle-target">${todaysWorkout.muscleTarget}</span>
+    </div>
+  `;
+}
+
 function startDailyScheduler(schedule) {
   const mainTimerEl = document.getElementById('main-timer');
   const currentTaskEl = document.getElementById('current-task');
   const progressRing = document.getElementById('progress-ring');
-  const ringCircumference = 502; // Matches radius 80
+  const ringCircumference = 377; // Matches radius 80
 
   function updateScheduleTracking() {
     const now = new Date();
@@ -164,6 +188,21 @@ function displayCurrentDate() {
   const now = new Date();
   const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
   dateEl.innerText = now.toLocaleDateString('en-US', options);
+}
+
+function handleDynamicRoutines() {
+  // We use querySelector to grab the outer container so the <h2> title hides too
+  const routinesSection = document.querySelector('.routines');
+  if (!routinesSection) return;
+
+  const today = new Date().getDay(); // 0 = Sunday, 1 = Monday ... 6 = Saturday
+
+  // If today is Sunday (0) OR Saturday (6)
+  if (today === 0 || today === 6) {
+    routinesSection.style.display = 'none'; // Hide it on weekends
+  } else {
+    routinesSection.style.display = 'block'; // Show it on weekdays
+  }
 }
 
 // Fire calculation system execution on startup
