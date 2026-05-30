@@ -41,7 +41,7 @@ function renderRoutine(woRoutine) {
   const today = new Date().getDay();
 
   // If it's a weekend, stop the function right here so it doesn't try to load data
-  if (today === 0 || today === 6) return;
+  //if (today === 0 || today === 6) return;
 
   // Grab TODAY'S specific workout from your config array
   const todaysWorkout = woRoutine[today - 1]; 
